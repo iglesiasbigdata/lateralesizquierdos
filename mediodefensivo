@@ -1,0 +1,184 @@
+#CÓDIGO PARA COGER LA TABLA DE LOS DATOS DE WYSCOUT Y FILTRAR POR COLUMNAS, FILTRAR POR MÍNIMO DE MINUTOS 
+#Y PARA NORMALIZAR LOS DATOS ENTRE 0 Y 1
+
+# Cargar librerías
+library(readxl)
+library(fmsb)
+
+# Seleccionar archivo Excel con la función file.choose()
+archivomediodefensivo <- file.choose()
+
+# Leer archivo de Excel con la función read_excel()
+excelmediodefensivo <- read_excel(archivomediodefensivo)
+
+
+# Seleccionar sólo las  columnas deseadas
+
+
+metricas_mediodefensivo <- subset(excelmediodefensivo, select = c("name","successful_forward_passes_percent","defensive_duels_won","tackle_avg",
+                                                        "aerial_duels_avg","duels_won","successful_defensive_actions_avg",
+                                                        "possession_adjusted_tackle","shot_block_avg","interceptions_avg","vertical_passes_avg","long_passes_avg",
+                                                        "aerial_duels_won","accurate_short_medium_pass_percent","successful_vertical_passes_percent"))
+
+
+
+
+
+
+
+
+#CODIGO PARA FILTRAR POR UNA CONDICIÓN, POR EJEMPLO, UN MÍNIMO DE MINUTOS
+
+# suponiendo que tus datos se llaman ""
+# y la columna de minutos jugados se llama "Minutos_jugados"
+# filtrar los datos para crear una nueva tabla con las filas que tienen más de 300 minutos jugados
+minutos_filtrados2 <- metricas_peligrosidad[metricas_peligrosidad$"Minutos jugados" > 300,]
+
+
+
+
+
+#CODIGO PARA ELIMINAR UNA TABLA
+
+#para borrar una tabla que he creado
+rm(excelmediodefensivo)
+
+
+
+
+
+
+
+
+
+# Cargar el paquete scales (si aún no lo has hecho)
+library(scales)
+
+# Seleccionar las columnas numéricas (excluyendo la columna "Jugador")
+cols_numericas <- metricas_mediodefensivo[, -1]
+
+# Normalizar cada columna por separado
+datos_norm <- apply(cols_numericas, 2, function(x) scale(x, center = FALSE))
+
+# Escalar los datos resultantes para que estén en el rango de 0 a 1
+datos_escalados <- apply(datos_norm, 2, function(x) rescale(x, to = c(0, 1)))
+
+# Unir la columna "Jugador" con las columnas normalizadas y escaladas en una nueva tabla
+nueva_tabla <- cbind(metricas_mediodefensivo[, 1], datos_escalados)
+
+
+# Seleccionar todas las columnas excepto la segunda(eliminar una columna)
+nueva_tabla <- subset(nueva_tabla, select = -c(12,13,14,15,16,17,18,19,20,21))
+
+
+
+
+
+
+
+
+
+#AHORA PARA SUMAR TODAS LAS FILAS Y CREAR UNA NUEVA COLUMNA LLAMADA TOTALE
+
+# Calcular la suma de cada fila de la tabla
+totales <- rowSums(nueva_tabla[, -1])
+
+# Añadir una nueva columna llamada "totales" a la tabla
+tabladefinitiva <- cbind(nueva_tabla, totales)
+
+# Cambiar el nombre de la nueva columna a "totales"
+colnames(tabladefinitiva)[ncol(tabladefinitiva)] <- "totales"
+
+
+
+
+
+
+
+
+
+#AHORA UN CODIGO PARA IMPRIMIR UNA TABLA EN EXCEL
+
+# Instalar el paquete "openxlsx" si aún no lo has hecho
+install.packages("openxlsx")
+
+# Cargar el paquete "openxlsx"
+library(openxlsx)
+
+# Escribir la tabla en un archivo de Excel
+write.xlsx(tabladefinitiva, file = "excelmediodefensivo.xlsx", sheetName = "nombre de la hoja", rownames() = FALSE)
+
+
+
+
+# Instala el paquete openxlsx si aún no lo tienes instalado
+#install.packages("openxlsx")
+
+# Carga la tabla "tabladefinitiva" (asegúrate de que esté en tu entorno de trabajo)
+tabla <- tabladefinitiva
+
+# Crea un libro de Excel
+library(openxlsx)
+wb <- createWorkbook()
+
+# Agrega la tabla al libro de Excel
+addWorksheet(wb, "Tabla")
+writeDataTable(wb, sheet = "Tabla", x = tabladefinitiva)
+
+# Guarda el libro de Excel
+saveWorkbook(wb, "excelmediodefensivocadiz.xlsx", overwrite = TRUE)
+
+
+
+
+#AHORA UN CODIGO PARA DARLE peso A CADA COLUMNA
+
+# Multiplica las columnas 2, 3, 5, 8, 9 y 10 por dos
+nueva_tabla[, c(2, 5, 8, 9)] <- nueva_tabla[, c(2, 3, 5, 8, 9)] * 2
+
+# Multiplica las columnas 2, 3, 5, 8, 9 y 10 por dos
+nueva_tabla[, c(3, 10)] <- nueva_tabla[, c(3, 10)] * 1.5
+
+
+
+
+
+
+
+
+
+#CODIGO PARA METER UNA COLUMNA DE UNA TABLA EN LA OTRA, TENIENDO EN CUENTA UN FILTRO ANTERIOR
+
+# Primero, filtra la tabla "metricas_peligrosidad" para obtener solo las filas con más de 300 minutos jugados
+minutos_filtrados2 <- metricas_peligrosidad[metricas_peligrosidad$"Minutos jugados" > 300,]
+
+# Luego, selecciona la columna que deseas agregar a la nueva tabla (por ejemplo, la columna "Goles")
+columna_a_agregar <- excelsudamericano$`Valor de mercado`
+
+# Finalmente, agrega la columna seleccionada a la nueva tabla utilizando la función cbind()
+convalormercado <- cbind(tabladefinitiva, columna_a_agregar)
+
+excel?????
+  
+  
+  # Cargar la librería openxlsx si aún no está cargada
+  library(openxlsx)
+
+
+
+# Nombre del archivo Excel de salida
+tablanueva <- "tabla_nuevatabla.xlsx"
+
+# Ruta donde deseas guardar el archivo Excel
+ruta_archivo <- "Descargas"
+
+# Ruta completa del archivo Excel
+ruta_completa <- file.path(ruta_archivo, tablanueva)
+
+# Guardar la tabla "nuevatabla" como un archivo Excel
+write.xlsx(tablanueva, ruta_completa)
+
+# Mensaje de confirmación
+cat("La tabla se ha guardado como", nombre_archivo, "en", ruta_archivo, "\n")
+
+ruta_destino <- "C:/Users/TuUsuario/Desktop/"
